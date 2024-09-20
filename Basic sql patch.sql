@@ -40,7 +40,7 @@ BEGIN TRY
 
      IF (@@ROWCOUNT <> 1)
      BEGIN
-       RAISERROR(N'Incorrect number of dbp.tb_ rows updated.', 16, -1);
+       RAISERROR(N'Incorrect number of dbo.tb_ rows updated.', 16, -1);
      END;
 
     COMMIT TRANSACTION;
