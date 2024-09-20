@@ -24,7 +24,7 @@ BEGIN TRY
 
   IF NOT EXISTS (SELECT 1
                     FROM dbo.
-                   WHERE ScheduleId = @ScheduleId)
+                   WHERE  = )
   BEGIN
 
     BEGIN TRANSACTION;
