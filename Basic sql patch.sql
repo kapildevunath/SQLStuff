@@ -20,10 +20,10 @@ GO
 BEGIN TRY
 
   DECLARE @ScheduleId INT = 6,
-          @SourceProcedure VARCHAR(256) = 'dbo.pr_PTSNet_Maintenance_rerun_playerdetail';
+          @SourceProcedure VARCHAR(256) = 'dbo.';
 
   IF NOT EXISTS (SELECT 1
-                    FROM dbo.tb_PTSNet_Maintenance_JobSchedule
+                    FROM dbo.
                    WHERE ScheduleId = @ScheduleId)
   BEGIN
 
