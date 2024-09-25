@@ -1,0 +1,4 @@
+;WITH CTE
+AS
+()
+SELECT
