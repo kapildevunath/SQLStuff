@@ -64,9 +64,9 @@ BEGIN CATCH
     ROLLBACK TRANSACTION;
   END;
 
-  DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_SEVERITY(),
-          @ErrorState INT = ERROR_STATE(),
-          @ErrorSeverity INT = ERROR_MESSAGE();
+  DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE(),
+          @ErrorState INT = ERROR_STATE(),
+          @ErrorSeverity INT = ERROR_SEVERITY();
 
   RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
 
