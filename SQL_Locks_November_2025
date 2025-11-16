@@ -1,0 +1,32 @@
+--Locking 16 Nov 2025
+WITH LockingCTE AS
+(
+    SELECT
+        r.session_id AS BlockedSessionID,
+        r.blocking_session_id AS BlockingSessionID,
+        r.wait_type,
+        r.wait_time,
+        r.wait_resource,
+        r.command AS BlockedCommand,
+        DB_NAME(r.database_id) AS BlockedDatabase,
+        DB_NAME(b.database_id) AS BlockingDatabase,
+        bs.text AS BlockingSQL,
+        rs.text AS BlockedSQL,
+        s_program.program_name AS BlockingProgram,
+        s_blocked.program_name AS BlockedProgram,
+        r.start_time AS BlockedStartTime,
+        b.start_time AS BlockingStartTime
+    FROM sys.dm_exec_requests r
+    LEFT JOIN sys.dm_exec_sessions s_blocked
+        ON r.session_id = s_blocked.session_id
+    LEFT JOIN sys.dm_exec_requests b
+        ON r.blocking_session_id = b.session_id
+    LEFT JOIN sys.dm_exec_sessions s_program
+        ON r.blocking_session_id = s_program.session_id
+    OUTER APPLY sys.dm_exec_sql_text(b.sql_handle) bs
+    CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) rs
+    WHERE r.blocking_session_id <> 0
+)
+SELECT *
+FROM LockingCTE
+ORDER BY wait_time DESC;
