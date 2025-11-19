@@ -1,0 +1,39 @@
+
+
+SELECT
+    s.session_id,
+    s.host_name,
+    s.login_name,
+    CASE s.transaction_isolation_level
+        WHEN 0 THEN 'Unspecified'
+        WHEN 1 THEN 'Read Uncommitted'
+        WHEN 2 THEN 'Read Committed'
+        WHEN 3 THEN 'Repeatable Read'
+        WHEN 4 THEN 'Serializable'
+        WHEN 5 THEN 'Snapshot'
+    END AS transaction_isolation_level_desc
+FROM
+    sys.dm_exec_sessions s
+WHERE
+    s.session_id = @@SPID; -- Your current session
+
+--------------------------------------------------------------------------------------------------------------------------
+
+SELECT * FROM sys.dm_tran_active_transactions;
+
+--------------------------------------------------------------------------------------------------------------------------
+
+
+DBCC USEROPTIONS;
+
+--------------------------------------------------------------------------------------------------------------------------
+
+SELECT
+    name,
+    is_read_committed_snapshot_on,
+    snapshot_isolation_state_desc
+FROM
+    sys.databases
+WHERE
+    name = DB_NAME();
+
