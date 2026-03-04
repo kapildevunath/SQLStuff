@@ -1,0 +1,26 @@
+DECLARE @BIReport_ID INT;
+SELECT @BIReport_ID = MAX(BIReport_ID) + 1 FROM dbo.Const_BIReports;
+
+BEGIN TRY
+    BEGIN TRANSACTION;
+
+    INSERT INTO dbo.Const_BIReports (BIReport_ID, Module_ID, ReportName, ReportUUID, PlatinumRequired, IsSystem)
+    VALUES (@BIReport_ID,2,'Account Group Aging','EMS/Embedded/AdhocReportAccountGroupAging.cpt',1,0)
+
+    DECLARE @RowsInserted INT = @@ROWCOUNT;
+
+    IF @RowsInserted = 1
+    BEGIN
+        PRINT 'Success: 1 row inserted.';
+        COMMIT TRANSACTION;
+    END
+    ELSE
+    BEGIN
+        PRINT 'Unexpected row count. Rolling back.';
+        ROLLBACK TRANSACTION;
+    END
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+    PRINT 'Error encountered: ' + ERROR_MESSAGE();
+END CATCH
