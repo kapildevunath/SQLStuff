@@ -1,0 +1,4 @@
+SELECT 
+    IDENT_CURRENT('dbo.Const_SCOA_Structures_Mapping') AS Current_Identity,
+    MAX(SCOA_Structures_Mapping_ID) AS Max_ID_In_Table
+FROM dbo.Const_SCOA_Structures_Mapping;
