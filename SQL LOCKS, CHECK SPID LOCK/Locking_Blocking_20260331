@@ -1,0 +1,31 @@
+GO
+
+sp_who2 active
+
+--dbcc inputbuffer()
+GO
+
+SELECT 
+    r.session_id AS [Blocked_SID],
+    r.blocking_session_id AS [Blocking_SID],
+    r.wait_time / 1000 AS [Wait_Sec],
+    r.wait_type,
+    DB_NAME(r.database_id) AS [Database],
+    -- The command currently being run by the blocked session
+    SUBSTRING(st.text, (r.statement_start_offset/2) + 1,
+    ((CASE r.statement_end_offset
+        WHEN -1 THEN DATALENGTH(st.text)
+        ELSE r.statement_end_offset END 
+            - r.statement_start_offset)/2) + 1) AS [Blocked_SQL],
+    -- The command being run by the blocker (if they are active)
+    bst.text AS [Blocking_SQL],
+    s.program_name,
+    s.host_name,
+    s.login_name
+FROM sys.dm_exec_requests r
+JOIN sys.dm_exec_sessions s ON r.session_id = s.session_id
+CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) st
+LEFT JOIN sys.dm_exec_requests br ON r.blocking_session_id = br.session_id
+LEFT JOIN sys.dm_exec_sessions bs ON r.blocking_session_id = bs.session_id
+OUTER APPLY sys.dm_exec_sql_text(br.sql_handle) bst
+WHERE r.blocking_session_id <
