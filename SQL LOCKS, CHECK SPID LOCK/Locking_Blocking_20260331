@@ -28,4 +28,5 @@ CROSS APPLY sys.dm_exec_sql_text(r.sql_handle) st
 LEFT JOIN sys.dm_exec_requests br ON r.blocking_session_id = br.session_id
 LEFT JOIN sys.dm_exec_sessions bs ON r.blocking_session_id = bs.session_id
 OUTER APPLY sys.dm_exec_sql_text(br.sql_handle) bst
-WHERE r.blocking_session_id <
+WHERE r.blocking_session_id <> 0
+ORDER BY r.wait_time DESC;
