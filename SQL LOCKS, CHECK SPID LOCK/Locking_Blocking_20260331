@@ -30,3 +30,28 @@ LEFT JOIN sys.dm_exec_sessions bs ON r.blocking_session_id = bs.session_id
 OUTER APPLY sys.dm_exec_sql_text(br.sql_handle) bst
 WHERE r.blocking_session_id <> 0
 ORDER BY r.wait_time DESC;
+
+--Checking transaction state
+SELECT 
+    s.session_id,
+    s.login_name,
+    s.host_name,
+    st.transaction_id,
+    st.enlist_count,
+    at.transaction_begin_time,
+    DATEDIFF(second, at.transaction_begin_time, GETDATE()) AS duration_seconds,
+    CASE at.transaction_state
+        WHEN 0 THEN 'Not initialized'
+        WHEN 1 THEN 'Initialized'
+        WHEN 2 THEN 'Active Begin Transaction'
+        WHEN 3 THEN 'Ended'
+        WHEN 4 THEN 'Commit started'
+        WHEN 5 THEN 'Prepared'
+        WHEN 6 THEN 'Committed'
+        WHEN 7 THEN 'Rolling back'
+        WHEN 8 THEN 'Rolled back'
+    END AS transaction_state
+FROM sys.dm_tran_session_transactions AS st
+INNER JOIN sys.dm_tran_active_transactions AS at ON st.transaction_id = at.transaction_id
+INNER JOIN sys.dm_exec_sessions AS s ON st.session_id = s.session_id
+ORDER BY at.transaction_begin_time;
