@@ -1,0 +1,21 @@
+SELECT 
+    rh.restore_date,
+    rh.destination_database_name AS DatabaseName,
+    b.backup_start_date,
+    b.backup_finish_date,
+    b.type AS BackupType,
+    CASE 
+        WHEN b.type = 'D' THEN 'Full'
+        WHEN b.type = 'I' THEN 'Differential'
+        WHEN b.type = 'L' THEN 'Log'
+        ELSE b.type 
+    END AS BackupTypeDesc,
+    b.database_name AS BackupFromDatabase,
+    mf.physical_device_name AS BackupFile
+FROM msdb.dbo.restorehistory rh
+LEFT JOIN msdb.dbo.backupset b 
+    ON rh.backup_set_id = b.backup_set_id
+LEFT JOIN msdb.dbo.backupmediafamily mf
+    ON b.media_set_id = mf.media_set_id
+WHERE rh.destination_database_name = DB_NAME()   -- current database
+ORDER BY rh.restore_date DESC;
