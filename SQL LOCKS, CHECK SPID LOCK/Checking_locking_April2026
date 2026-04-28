@@ -1,0 +1,31 @@
+
+SELECT
+    r.session_id AS SPID,
+    DB_NAME(r.database_id) AS DatabaseName,
+    r.command AS OperationType,
+    r.status AS Status,
+    r.start_time AS StartTime,
+    r.wait_type AS CurrentWaitType,
+    r.wait_time AS WaitTime_ms,
+    r.blocking_session_id AS BlockedBySPID,
+    -- Extracts the currently executing statement text
+    SUBSTRING(
+        t.text,
+        (r.statement_start_offset / 2) + 1,
+        (
+            (CASE r.statement_end_offset
+                WHEN -1 THEN DATALENGTH(t.text)
+                ELSE r.statement_end_offset
+            END - r.statement_start_offset
+        ) / 2) + 1
+    ) AS ExecutingStatement,
+    t.text AS ParentBatchSQL
+FROM
+    sys.dm_exec_requests r (NOLOCK)
+CROSS APPLY
+    sys.dm_exec_sql_text(r.sql_handle) t 
+WHERE
+    r.session_id != @@SPID -- Exclude the current query session
+    AND r.session_id > 50 -- Exclude most system processes
+ORDER BY
+    r.start_time;
