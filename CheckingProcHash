@@ -1,0 +1,32 @@
+-- Create a temporary table to store the results
+IF OBJECT_ID('tempdb..#ProcVersions') IS NOT NULL 
+    DROP TABLE #ProcVersions;
+
+CREATE TABLE #ProcVersions (
+    DatabaseName SYSNAME,
+    ProcedureName SYSNAME,
+    ProcHash VARCHAR(64),
+    ModifyDate DATETIME
+);
+
+-- Loop through all databases and gather the proc info
+EXEC sp_MSforeachdb '
+USE [?];
+IF EXISTS (SELECT 1 FROM sys.procedures WHERE name = ''SCM_GetProjectDetailsListForRequisition_sp'')
+BEGIN
+    INSERT INTO #ProcVersions
+    SELECT 
+        ''?'' AS DatabaseName,
+        p.name AS ProcedureName,
+        CONVERT(VARCHAR(64), HASHBYTES(''SHA2_256'', OBJECT_DEFINITION(p.object_id)), 2) AS ProcHash,
+        p.modify_date AS ModifyDate
+    FROM sys.procedures p
+    WHERE p.name = ''SCM_GetProjectDetailsListForRequisition_sp''
+END
+';
+
+-- View the results grouped by hash so you can see which ones match
+SELECT * FROM #ProcVersions
+ORDER BY ProcHash, DatabaseName;
+
+--sp_helptext 'dbo.'
