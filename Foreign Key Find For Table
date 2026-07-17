@@ -1,0 +1,8 @@
+
+ SELECT 
+    OBJECT_NAME(object_id) AS TableName,
+    name AS IndexName,
+    index_id,
+    type_desc AS IndexType
+FROM sys.indexes 
+WHERE object_id = OBJECT_ID(''); --Table name here
