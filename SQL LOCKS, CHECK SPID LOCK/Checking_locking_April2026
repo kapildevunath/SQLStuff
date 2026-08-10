@@ -1,3 +1,7 @@
+--SP_WHO2 ACTIVE
+ SP_WHO3
+GO
+--DBCC INPUTBUFFER()
 
 SELECT
     r.session_id AS SPID,
