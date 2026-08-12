@@ -1,0 +1,96 @@
+WITH CustomerTotals AS
+(
+    SELECT
+        CustomerId,
+        SUM(Amount) AS TotalAmount
+    FROM dbo.Transactions
+    GROUP BY CustomerId
+)
+SELECT *
+FROM CustomerTotals;
+
+ROW_NUMBER() OVER
+(
+    PARTITION BY CustomerId
+    ORDER BY TransactionDate DESC
+)
+
+RANK() OVER
+(
+    ORDER BY TotalAmount DESC
+)
+
+WITH Ranked AS
+(
+    SELECT
+        CustomerId,
+        RegionId,
+        SUM(Amount) AS TotalAmount,
+        ROW_NUMBER() OVER
+        (
+            PARTITION BY RegionId
+            ORDER BY SUM(Amount) DESC
+        ) AS RowNum
+    FROM dbo.Transactions
+    GROUP BY
+        CustomerId,
+        RegionId
+)
+SELECT *
+FROM Ranked
+WHERE RowNum <= 10;
+
+CREATE OR ALTER PROCEDURE dbo.GetCustomerTransactions
+    @CustomerId INT,
+    @StartDate DATE,
+    @EndDate DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        TransactionId,
+        CustomerId,
+        TransactionDate,
+        Amount
+    FROM dbo.Transactions
+    WHERE CustomerId = @CustomerId
+      AND TransactionDate >= @StartDate
+      AND TransactionDate < DATEADD(DAY, 1, @EndDate);
+END;
+GO
+
+BEGIN TRY
+
+    BEGIN TRANSACTION;
+
+    -- INSERT / UPDATE / DELETE
+
+    COMMIT TRANSACTION;
+
+END TRY
+BEGIN CATCH
+
+    IF @@TRANCOUNT > 0
+        ROLLBACK TRANSACTION;
+
+    THROW;
+
+END CATCH;
+
+
+SELECT
+    JSON_VALUE(@Json, '$.Customer.Name');
+
+SELECT *
+FROM OPENJSON(@Json)
+WITH
+(
+    CustomerId INT '$.CustomerId',
+    Name       VARCHAR(100) '$.Name',
+    Amount     DECIMAL(18,2) '$.Amount'
+);
+
+SELECT
+    X.value('(CustomerId/text())[1]', 'INT') AS CustomerId
+FROM @Xml.nodes('/Customers/Customer') AS T(X);
