@@ -28,6 +28,8 @@ DECLARE @ErrorMessage NVARCHAR(4000) = Error_Message();
 DECLARE @ErrorSeverity INT = Error_Severity();
 DECLARE @ErrorState INT = Error_State();
 
+RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+
 END CATCH
 
 END
