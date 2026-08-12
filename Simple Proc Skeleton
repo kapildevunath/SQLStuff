@@ -1,0 +1,34 @@
+CREATE OR ALTER dbo.
+  @TID VARCHAR(20)
+
+AS
+
+BEGIN
+
+  SET NOCOUNT ON
+  
+  BEGIN TRANSACTION
+
+  BEGIN TRY
+
+    UPDATE
+
+   COMMIT TRANSACTION
+
+   END TRY
+   BEGIN CATCH
+
+   IF (XACT_STATE()) <> 0
+   BEGIN
+
+     ROLLBACK TRANSACTION;
+   END
+
+DECLARE @ErrorMessage NVARCHAR(4000) = Error_Message();
+DECLARE @ErrorSeverity INT = Error_Severity();
+DECLARE @ErrorState INT = Error_State();
+
+END CATCH
+
+END
+ 
