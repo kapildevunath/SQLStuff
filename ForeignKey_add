@@ -2,7 +2,7 @@
 ALTER TABLE schema.maintable
 ADD CONSTRAINT FK_Name
 FOREIGN KEY (ColumnInMainTable) 
-REFERENCES schema.mappingtable (ColumnInMappingTable );
+REFERENCES schema.mappingtable (ColumnInMappingTable);
 
 --WITH NOCHECK WITH EXISTING VALUES WILL REAMIN
 ALTER TABLE schema.maintable WITH NOCHECK
