@@ -1,0 +1,22 @@
+/*
+=================================================================================================================================================================
+Created by                  :	K Devunath
+Date created			          :	
+Database                    : 
+Table Name                  :	
+Table Description           : Rollback script to drop table
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------
+*/
+USE 
+GO
+
+IF EXISTS 
+(
+    SELECT 1 FROM sys.tables 
+    WHERE object_id = OBJECT_ID('schema.table')
+)
+BEGIN
+
+DROP TABLE IF EXISTS schema.table
+
+END
