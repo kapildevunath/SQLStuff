@@ -1,0 +1,28 @@
+
+USE 
+GO
+
+DROP TABLE IF EXISTS schema.table
+
+CREATE TABLE database.schema.table
+(
+ ID INT IDENTITY(1,1) NOT NULL
+,column INT
+,column INT 
+,column INT
+,column DATETIME DEFAULT GETDATE()
+,column NVARCHAR(100) DEFAULT SUSER_SNAME() 
+,column BIT DEFAULT 0
+PRIMARY KEY (ID)
+)
+
+IF NOT EXISTS (
+    SELECT 1 FROM sys.indexes 
+    WHERE name = 'INDEXNAME' AND object_id = OBJECT_ID('schema.table')
+)
+BEGIN
+--CREATED Non clustered index for searching with ..., INCLUDE columns are the SELECT
+CREATE NONCLUSTERED INDEX INDX_ ON schema.table (WHERE)
+INCLUDE (SELECT COLUMNS)
+END
+
