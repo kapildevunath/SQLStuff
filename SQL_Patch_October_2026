@@ -1,0 +1,44 @@
+USE YourDatabaseName;
+GO
+
+SET ANSI_WARNINGS ON;
+SET ARITHABORT ON;
+SET ANSI_NULLS ON;
+SET QUOTED_IDENTIFIER ON;
+SET NUMERIC_ROUNDABORT OFF;
+SET NOCOUNT OFF;
+SET XACT_ABORT ON;
+GO
+
+BEGIN TRY
+
+    BEGIN TRANSACTION;
+
+    ---------------------------------------------------------------------------
+    -- PLACE YOUR UPDATE OR INSERT STATEMENT(S) HERE
+    ---------------------------------------------------------------------------
+    UPDATE YourSchema.YourTable
+       SET SomeColumn = 'NewValue', 
+           AudModUser = SUSER_SNAME(), 
+           AudModDate = GETDATE()
+     WHERE YourID IN (12345);
+
+    ---------------------------------------------------------------------------
+
+    COMMIT TRANSACTION;
+    PRINT N'Patch applied successfully.';
+
+END TRY
+BEGIN CATCH
+
+    IF (XACT_STATE() <> 0)
+        ROLLBACK TRANSACTION;
+
+    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE(),
+            @ErrorState INT = ERROR_STATE(),
+            @ErrorSeverity INT = ERROR_SEVERITY();
+
+    RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+
+END CATCH;
+GO
