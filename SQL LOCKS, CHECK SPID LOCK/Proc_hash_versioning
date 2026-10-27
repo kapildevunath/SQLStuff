@@ -1,0 +1,25 @@
+CREATE FUNCTION dbo.ufn_GetProcedureHash
+(
+    @SchemaName SYSNAME,
+    @ProcName   SYSNAME
+)
+RETURNS VARCHAR(64)
+AS
+BEGIN
+    DECLARE @FullName NVARCHAR(512) = QUOTENAME(@SchemaName) + N'.' + QUOTENAME(@ProcName);
+    DECLARE @ObjId INT = OBJECT_ID(@FullName);
+
+    -- Ensure the object exists and is actually a stored procedure
+    IF @ObjId IS NULL OR OBJECTPROPERTY(@ObjId, 'IsProcedure') = 0
+        RETURN NULL;
+
+    DECLARE @Definition NVARCHAR(MAX) = OBJECT_DEFINITION(@ObjId);
+
+    -- Handle encrypted procedures where definition is unavailable
+    IF @Definition IS NULL
+        RETURN 'ENCRYPTED_OR_UNAVAILABLE';
+
+    -- Compute SHA2_256 hash and convert binary to a lowercase hex string
+    RETURN LOWER(CONVERT(VARCHAR(64), HASHBYTES('SHA2_256', @Definition), 2));
+END
+GO
