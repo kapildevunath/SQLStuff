@@ -1,0 +1,15 @@
+USE Database
+GO
+
+SELECT @@SERVERNAME
+
+SELECT *
+  FROM sys.objects
+WHERE [NAME] = 'procedurename'
+ 
+DECLARE @COUNTER INT = @@ROWCOUNT
+ 
+IF @COUNTER > 0
+BEGIN
+EXEC SP_HELPTEXT 'schema.procedurename'
+END
