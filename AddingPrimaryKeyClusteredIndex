@@ -1,0 +1,33 @@
+USE 
+GO
+
+IF NOT EXISTS (
+    SELECT 1 
+      FROM sys.key_constraints kc
+      JOIN sys.objects o ON kc.parent_object_id = o.object_id
+      JOIN sys.schemas s ON o.schema_id = s.schema_id
+     WHERE kc.type = 'PK'
+       AND o.name = 'tablename'
+       AND s.name = 'schema'
+       AND kc.name = 'PK_name'
+)
+BEGIN
+ 
+    
+    ALTER TABLE schema.tablename
+    ADD CONSTRAINT PK_name
+    PRIMARY KEY CLUSTERED (column) --primary key candidate
+    WITH (
+        ONLINE = ON,
+        SORT_IN_TEMPDB = ON,
+        MAXDOP = 4
+    );
+    
+    PRINT 'Primary Key created successfully.';
+END
+ELSE
+BEGIN
+    PRINT 'Primary Key already exists.';
+END
+GO
+
