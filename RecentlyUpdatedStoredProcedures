@@ -1,0 +1,11 @@
+SELECT 
+    s.name AS SchemaName,
+    p.name AS ProcedureName,
+    p.create_date AS CreatedDate,
+    p.modify_date AS LastModifiedDate,
+    DATEDIFF(Day, p.modify_date, GETDATE()) AS DaysAgo
+FROM sys.procedures p
+INNER JOIN sys.schemas s 
+    ON p.schema_id = s.schema_id
+WHERE p.modify_date >= DATEADD(DAY, -7, GETDATE())
+ORDER BY p.modify_date DESC;
